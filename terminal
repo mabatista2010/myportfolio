@@ -1,0 +1,13 @@
+# 1. Crear el proyecto
+npx create-next-app@latest portfolio-apps --typescript --tailwind
+
+# 2. Entrar al directorio
+cd portfolio-apps 
+
+# 3. Instalar dependencias
+npm install @supabase/supabase-js @supabase/auth-helpers-nextjs @headlessui/react @heroicons/react cheerio @headlessui/tailwindcss 
+
+# 4. Iniciar el servidor
+npm run dev 
+
+mkdir -p lib components types pages/api pages/admin/edit 

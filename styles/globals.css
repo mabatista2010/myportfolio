@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-dark-900 text-gray-100;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
+
+/* Selección de texto */
+::selection {
+  @apply bg-neon-blue/20 text-neon-blue;
+}
+
+/* Efecto de resplandor para inputs */
+input:focus, textarea:focus {
+  @apply ring-2 ring-neon-blue/50 border-neon-blue/50;
+}
+
+/* Animaciones suaves globales */
+* {
+  @apply transition-colors duration-200;
+} 
