@@ -1,5 +1,6 @@
+import { useState, useEffect, useRef } from 'react'
 import { GetServerSideProps } from 'next'
-import { motion } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import Layout from '@/components/Layout'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -15,6 +16,75 @@ interface App {
 
 interface HomeProps {
   apps: App[]
+}
+
+function ProjectCard({ app, index }: { app: App; index: number }) {
+  const cardRef = useRef(null)
+  const isInView = useInView(cardRef, { margin: "-45% 0px -45% 0px" })
+  
+  return (
+    <motion.div
+      ref={cardRef}
+      key={app.id}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+      className="group relative"
+    >
+      {/* Card background with glow effect */}
+      <div 
+        className={`absolute -inset-0.5 bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink rounded-2xl transition duration-500 blur-xl
+          ${isInView ? 'opacity-100 md:opacity-0 md:group-hover:opacity-100' : 'opacity-0'}`}
+      />
+      
+      <div className="relative bg-dark-800 rounded-xl overflow-hidden">
+        {app.image_url ? (
+          <div className="relative h-48 overflow-hidden">
+            <motion.img
+              src={app.image_url}
+              alt={app.title}
+              className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-dark-800 via-dark-800/50 to-transparent" />
+          </div>
+        ) : (
+          <div className="h-48 bg-gradient-to-br from-neon-blue/5 to-neon-purple/5" />
+        )}
+
+        <div className="p-6">
+          <h3 className={`text-xl font-semibold mb-2 transition-colors ${isInView ? 'text-neon-blue md:text-white md:group-hover:text-neon-blue' : 'text-white'}`}>
+            {app.title}
+          </h3>
+          <p className="text-gray-400 mb-4 truncate">
+            {app.description}
+          </p>
+          <motion.a
+            href={app.app_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center transition-colors ${isInView ? 'text-neon-blue hover:text-neon-purple' : 'text-neon-blue hover:text-neon-purple'}`}
+            whileHover={{ x: 5 }}
+          >
+            Explorar
+            <svg
+              className="w-5 h-5 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </motion.a>
+        </div>
+      </div>
+    </motion.div>
+  )
 }
 
 export default function Home({ apps }: HomeProps) {
@@ -121,63 +191,7 @@ export default function Home({ apps }: HomeProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {apps.map((app, index) => (
-              <motion.div
-                key={app.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative"
-              >
-                {/* Card background with glow effect */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink rounded-2xl opacity-0 group-hover:opacity-100 transition duration-500 blur-xl group-hover:duration-200" />
-                
-                <div className="relative bg-dark-800 rounded-xl overflow-hidden">
-                  {app.image_url ? (
-                    <div className="relative h-48 overflow-hidden">
-                      <motion.img
-                        src={app.image_url}
-                        alt={app.title}
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-dark-800 via-dark-800/50 to-transparent" />
-                    </div>
-                  ) : (
-                    <div className="h-48 bg-gradient-to-br from-neon-blue/5 to-neon-purple/5" />
-                  )}
-
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-neon-blue transition-colors">
-                      {app.title}
-                    </h3>
-                    <p className="text-gray-400 mb-4 truncate">
-                      {app.description}
-                    </p>
-                    <motion.a
-                      href={app.app_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-neon-blue hover:text-neon-purple transition-colors"
-                      whileHover={{ x: 5 }}
-                    >
-                      Explorar
-                      <svg
-                        className="w-5 h-5 ml-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 7l5 5m0 0l-5 5m5-5H6"
-                        />
-                      </svg>
-                    </motion.a>
-                  </div>
-                </div>
-              </motion.div>
+              <ProjectCard key={app.id} app={app} index={index} />
             ))}
           </div>
         </div>
@@ -186,7 +200,7 @@ export default function Home({ apps }: HomeProps) {
   )
 }
 
-export const getServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const { data: apps, error } = await supabase
     .from('apps')
     .select('*')
